@@ -29,9 +29,8 @@ class CPU:
 
     def load(self):
         """Load a program into memory."""
-        # program counter
-        address = 0
-
+        # #program counter
+        # address = 0
         # # For now, we've just hardcoded a program:
         # program = [
         #     # From print8.ls8
@@ -48,22 +47,23 @@ class CPU:
         #     address += 1
 
         # Load a program
+        # program counter
+        address = 0
         filename = sys.argv[1]
-        # open file
         with open(filename) as f:
             for line in f:
                 # take out comment
-                line = line.split("#")
-                try:
-                    # turn string to integer
-                    line = int(line[0])
-                except ValueError:
-                    # skip empty lines
+                # remove leading and trailing spaces
+                line = line.split("#")[0].strip()
+                # skip empty lines
+                if line == "":
                     continue
-
                 # store in memory
-                self.ram[address] = line
-                address += 1
+                else:
+                    # base 2 (binary)
+                    self.ram[address] = int(line, 2)
+                    address += 1
+
 
 
     def alu(self, op, reg_a, reg_b):
@@ -127,12 +127,15 @@ class CPU:
             elif IR == MUL:
                 # multiply the values in two registers together 
                 # and store the result in registerA.
-                self.reg[operand_a] = self.reg[operand_a] * self.reg[operand_b]
-                self.pc += 2
+                self.reg[operand_a] *= self.reg[operand_b]
+                self.pc += 3
 
             
         
+# cpu = CPU()
 
+# cpu.load() 
+# #cpu.run()
 #print("ARG 1", sys.argv[0])
 #print("ARG 2", sys.argv[1]) # file to loadexcept NameError:
 
