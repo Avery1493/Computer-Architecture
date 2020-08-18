@@ -32,20 +32,38 @@ class CPU:
         # program counter
         address = 0
 
-        # For now, we've just hardcoded a program:
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
+        # # For now, we've just hardcoded a program:
+        # program = [
+        #     # From print8.ls8
+        #     0b10000010, # LDI R0,8
+        #     0b00000000,
+        #     0b00001000,
+        #     0b01000111, # PRN R0
+        #     0b00000000,
+        #     0b00000001, # HLT
+        # ]
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        # for instruction in program:
+        #     self.ram[address] = instruction
+        #     address += 1
+
+        # Load a program
+        filename = sys.argv[1]
+        # open file
+        with open(filename) as f:
+            for line in f:
+                # take out comment
+                line = line.split("#")
+                try:
+                    # turn string to integer
+                    line = int(line[0])
+                except ValueError:
+                    # skip empty lines
+                    continue
+
+                # store in memory
+                self.ram[address] = line
+                address += 1
 
 
     def alu(self, op, reg_a, reg_b):
@@ -83,6 +101,7 @@ class CPU:
         LDI = 0b10000010
         PRN = 0b01000111
         HLT = 0b00000001
+        MUL = 0b10100010
 
         while self.running == True:
             # first instruction
@@ -105,5 +124,15 @@ class CPU:
                 self.running = False
                 self.pc += 1
             
+            elif IR == MUL:
+                # multiply the values in two registers together 
+                # and store the result in registerA.
+                self.reg[operand_a] = self.reg[operand_a] * self.reg[operand_b]
+                self.pc += 2
+
+            
         
+
+#print("ARG 1", sys.argv[0])
+#print("ARG 2", sys.argv[1]) # file to loadexcept NameError:
 
