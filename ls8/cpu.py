@@ -74,10 +74,13 @@ class CPU:
     def run(self):
         """Run the CPU."""
         # Instructions
-        LDI = 0b10000010
-        PRN = 0b01000111
-        HLT = 0b00000001
-        MUL = 0b10100010
+        branch_table = {
+            "LDI" : 0b10000010,
+            "PRN" : 0b01000111,
+            "HLT" : 0b00000001,
+            "MUL" : 0b10100010
+        }
+        
 
         while self.running == True:
             # first instruction
@@ -86,21 +89,21 @@ class CPU:
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
-            if IR == LDI:
+            if IR == branch_table["LDI"]:
                 # sets a specified register to a specified value
                 self.reg[operand_a] = operand_b
                 self.pc += 3
 
-            elif IR == PRN:
+            elif IR == branch_table["PRN"]:
                 # read
                 print(self.reg[operand_a])
                 self.pc += 2
             
-            elif IR == HLT:
+            elif IR == branch_table["HLT"]:
                 self.running = False
                 self.pc += 1
             
-            elif IR == MUL:
+            elif IR == branch_table["MUL"]:
                 # multiply the values in two registers together 
                 # and store the result in registerA.
                 self.reg[operand_a] *= self.reg[operand_b]
