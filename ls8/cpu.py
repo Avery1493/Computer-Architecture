@@ -89,22 +89,21 @@ class CPU:
             IR = self.ram_read(self.pc)
             # next two lines
             operand_a = self.ram_read(self.pc + 1)
-            operand_b = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
 
             if IR == LDI:
-                # load/store
-                self.ram_write(operand_a, operand_b)
-                self.pc += 2
+                # sets a specified register to a specified value
+                self.reg[operand_a] = operand_b
+                self.pc += 3
 
-            if IR == PRN:
+            elif IR == PRN:
                 # read
-                self.ram_write(operand_a, operand_b)
+                print(self.reg[operand_a])
                 self.pc += 2
             
-            if IR == HLT:
+            elif IR == HLT:
                 self.running = False
+                self.pc += 1
             
-            self.pc += 1
-            
-
+        
 
