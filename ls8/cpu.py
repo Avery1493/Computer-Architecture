@@ -1,28 +1,32 @@
 """CPU functionality."""
 
 import sys
+# Instructions
+HLT = 0b00000001
+LDI = 0b10000010
+PRN = 0b01000111
+MUL = 0b10100010
 
 class CPU:
     """Main CPU class."""
-
     def __init__(self):
         """Construct a new CPU."""
-        self.reg = [0] * 8 # 8 registers 
-        self.ram = [0] * 256 # ram
-        self.pc = 0
-        self.running = True
+        self.reg = [0] * 8      # registers 
+        self.ram = [0] * 256    # ram
+        self.pc = 0             # program counter
+        self.running = True     # CPU running
+        self.branch_table = {}  # modularize code
+        self.branch_table[HLT] = self.hlt
+        self.branch_table[LDI] = self.ldi
+        self.branch_table[PRN] = self.prn
+        self.branch_table[MUL] = self.mul
 
     def ram_read(self, MAR):
-        '''
-        take in address and return value
-        '''
-        MDR = self.ram[MAR]
-        return MDR
+        '''take in address and return value'''
+        return self.ram[MAR]
 
     def ram_write(self, MAR, MDR):
-        '''
-        take address and write value
-        '''
+        '''take address and write value'''
         self.ram[MAR] = MDR
 
     def load(self):
@@ -44,7 +48,9 @@ class CPU:
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
-
+        # arithmetic logic unit 
+        # AND clear (set to 0)
+        # OR (set to 1)
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         #elif op == "SUB": etc
@@ -71,17 +77,25 @@ class CPU:
 
         print()
 
+    # Instruction methods
+    def hlt(self, operand_a=None, operand_b=None): 
+        self.running = False
+        self.pc += 1
+    def ldi(self, operand_a=None, operand_b=None):
+        '''set specified register to a specified value''' 
+        self.reg[operand_a] = operand_b
+        self.pc += 3
+    def prn(self, operand_a=None, operand_b=None): 
+        '''read value at specified register'''
+        print(self.reg[operand_a])
+        self.pc += 2
+    def mul(self, operand_a=None, operand_b=None):
+        ''' multiply values in two registers and store at registerA.'''
+        self.reg[operand_a] *= self.reg[operand_b]
+        self.pc += 3
+
     def run(self):
         """Run the CPU."""
-        # Instructions
-        branch_table = {
-            "LDI" : 0b10000010,
-            "PRN" : 0b01000111,
-            "HLT" : 0b00000001,
-            "MUL" : 0b10100010
-        }
-        
-
         while self.running == True:
             # first instruction
             IR = self.ram_read(self.pc)
@@ -89,32 +103,9 @@ class CPU:
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
-            if IR == branch_table["LDI"]:
-                # sets a specified register to a specified value
-                self.reg[operand_a] = operand_b
-                self.pc += 3
-
-            elif IR == branch_table["PRN"]:
-                # read
-                print(self.reg[operand_a])
-                self.pc += 2
+            if IR not in self.branch_table:
+                print("ERROR")
             
-            elif IR == branch_table["HLT"]:
-                self.running = False
-                self.pc += 1
-            
-            elif IR == branch_table["MUL"]:
-                # multiply the values in two registers together 
-                # and store the result in registerA.
-                self.reg[operand_a] *= self.reg[operand_b]
-                self.pc += 3
-
-            
+            # call function
+            self.branch_table[IR](operand_a, operand_b)     
         
-# cpu = CPU()
-
-# cpu.load() 
-# #cpu.run()
-#print("ARG 1", sys.argv[0])
-#print("ARG 2", sys.argv[1]) # file to loadexcept NameError:
-
