@@ -6,6 +6,8 @@ HLT = 0b00000001
 LDI = 0b10000010
 PRN = 0b01000111
 MUL = 0b10100010
+POP = 0b01000110
+PUSH = 0b01000101
 
 class CPU:
     """Main CPU class."""
@@ -14,12 +16,15 @@ class CPU:
         self.reg = [0] * 8      # registers 
         self.ram = [0] * 256    # ram
         self.pc = 0             # program counter
+        self.sp = 0xF4          # spack pointer (F3 start of Stack)
         self.running = True     # CPU running
         self.branch_table = {}  # modularize code
         self.branch_table[HLT] = self.hlt
         self.branch_table[LDI] = self.ldi
         self.branch_table[PRN] = self.prn
         self.branch_table[MUL] = self.mul
+        self.branch_table[PUSH] = self.push
+        self.branch_table[POP] = self.pop
 
     def ram_read(self, MAR):
         '''take in address and return value'''
@@ -53,7 +58,32 @@ class CPU:
         # OR (set to 1)
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
+        # elif op == "SUB": 
+        #     pass
+        # elif op == "AND": 
+        #     pass
+        # elif op == "CMP": 
+        #     pass
+        # elif op == "DEC": 
+        #     pass
+        # elif op == "DIV": 
+        #     pass
+        # elif op == "INC": 
+        #     pass
+        # elif op == "MOD": 
+        #     pass
+        # elif op == "MUL": 
+        #     pass
+        # elif op == "NOT": 
+        #     pass
+        # elif op == "OR": 
+        #     pass
+        # elif op == "SHL": 
+        #     pass
+        # elif op == "SHR": 
+        #     pass
+        # elif op == "XOR": 
+        #     pass
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -93,6 +123,22 @@ class CPU:
         ''' multiply values in two registers and store at registerA.'''
         self.reg[operand_a] *= self.reg[operand_b]
         self.pc += 3
+
+    def push(self, operand_a=None, operand_b=None):
+        '''Push the value in the given register on the stack'''
+        # decrement the SP
+        self.sp -= 1
+        # copy value in given register to the address pointed to by sp
+        self.ram[self.sp] = self.reg[operand_a]
+        self.pc += 2
+
+    def pop(self, operand_a=None, operand_b=None):
+        '''Pop the value at the top of the stack into the given register.'''
+        # copy value from the address pointed to by sp to given register
+        self.reg[operand_a]= self.ram[self.sp]
+        # increment the SP
+        self.sp += 1
+        self.pc += 2
 
     def run(self):
         """Run the CPU."""
